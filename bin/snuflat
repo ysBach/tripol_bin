@@ -21,14 +21,16 @@ else
 	angles="0.0"
 fi
 
+# TODO: Let non-pol flat use ``Lo`` instead of ``PLo``
+#      (cuz checking RET-ANG1 has ~ 1 sec overhead everytime)
 for angle in $angles; do
 	echo "RET-ANG1 = $angle"
-	echo "PLo r $angle 0.4 flat_r $num"
-	PLo r $angle 0.4 flat_r $num
-	echo "PLo g $angle 2.0 flat_g $num"
-	PLo g $angle 2.0 flat_g $num
-	echo "PLo i $angle 5.0 flat_i $num"
-	PLo i $angle 5.0 flat_i $num
+	echo "PLo r $angle 0.4 flat $num"
+	PLo r $angle 0.4 flat $num
+	echo "PLo g $angle 2.0 flat $num"
+	PLo g $angle 2.0 flat $num
+	echo "PLo i $angle 5.0 flat $num"
+	PLo i $angle 5.0 flat $num
 done
 
 tput bel
