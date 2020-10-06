@@ -1,0 +1,21 @@
+#!/bin/sh
+
+. $TRIPOL_DEF_FILE
+
+case "$1" in
+	-s)
+		cmd="tempstatus"
+		;;
+	-x)
+		cmd="tempstat2"
+		;;
+	*)
+		cmd="gettemp"
+		;;
+esac
+
+for band in $band_1 $band_2 $band_3; do
+	test $band = $notused && continue
+	echo "$band: `$ccd1_cmd $band $cmd`"
+done
+exit 0

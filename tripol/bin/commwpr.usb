@@ -1,0 +1,48 @@
+#!/usr/bin/tclsh
+
+set defaultport "/dev/ttyACM0"
+
+proc open_port {} {
+	global commport
+	#set ttyport [open $commport "r+"]
+	set ttyport [open $commport {RDWR NONBLOCK}]
+	fconfigure $ttyport -mode 9600,n,8,1
+	fconfigure $ttyport -buffering none -translation binary
+	fconfigure $ttyport -encoding ascii
+	fconfigure $ttyport -blocking yes
+	fconfigure $ttyport -handshake none
+	return $ttyport
+}
+
+proc close_port {ttyport} {
+	fconfigure $ttyport -blocking no
+	flush $ttyport
+	close $ttyport
+}
+
+proc dialog {command} {
+	set wpr [open_port]
+	puts -nonewline $wpr $command
+	flush $wpr
+	set reply [read $wpr 1]
+	close $wpr
+	return $reply
+}
+
+set commport $defaultport
+if {$argc >= 2 && [lindex $argv 0] == "-l"} {
+	set commport [lindex $argv 1]
+	set argv [lreplace $argv 0 1]
+	incr argc -2
+}
+
+if {$argc > 0} {
+	# 1 command mocd
+	puts "[dialog $argv]"
+	exit
+}
+# else enter terminal mode
+while {[gets stdin command]} {
+	puts "[dialog $command]"
+}
+exit

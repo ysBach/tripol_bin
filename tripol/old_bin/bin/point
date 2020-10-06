@@ -1,0 +1,29 @@
+#!/bin/sh
+
+. $TRIPOL_DEF_FILE
+
+epoch=$1
+ra_h=$2
+ra_m=$3
+ra_s=$4
+dec_d=$5
+dec_m=$6
+dec_s=$7
+object=$8
+
+if [ "$1" = "clear" -o "$1" = "-clear" ]; then
+	rm -f $point_base_file $point_offset_file
+	$do_point_cmd clear
+	exit $?
+fi
+
+if [ $# -lt 7 ]; then
+	myname=`basename $0`
+	echo "usage: $myname epoch ra_h ra_m ra_s dec_d dec_m dec_s object"
+	echo "       $myname clear"
+	exit 1
+fi
+echo $epoch $ra_h:$ra_m:$ra_s $dec_d:$dec_m:$dec_s > $point_base_file
+echo 0 0 > $point_offset_file
+$do_point_cmd point
+exit $?

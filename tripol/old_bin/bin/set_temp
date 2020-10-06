@@ -1,0 +1,11 @@
+#!/bin/sh
+
+. $TRIPOL_DEF_FILE
+
+temp=$1
+
+for band in $band_1 $band_2 $band_3; do
+	test $band = $notused && continue
+	$ccd1_cmd $band settemp $temp &
+done
+exit 0

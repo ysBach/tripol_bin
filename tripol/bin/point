@@ -1,0 +1,41 @@
+#!/bin/sh
+
+# Let the name of the object saved to ``objname_dir``.
+# and it will be checked whether the name == Lo/PLo's object_name.
+# It will be removed if ``point2 clear``.
+# tripol.def  : added ``objname_dir``
+# do_point.sh : `` if clear; then rm -f $objname_dir ``
+# point       : ``echo $object > $objname_dir``
+# (P)TL/(P)Lo : added object_name and point2_name checker
+# 2019-11-14 Y.P.Bach
+
+
+. $TRIPOL_DEF_FILE
+
+epoch=$1
+ra_h=$2
+ra_m=$3
+ra_s=$4
+dec_d=$5
+dec_m=$6
+dec_s=$7
+object=$8
+
+echo $object > $objectname_dir
+
+if [ "$1" = "clear" -o "$1" = "-clear" ]; then
+	rm -f $point_base_file $point_offset_file
+	$do_point_cmd clear
+	exit $?
+fi
+
+if [ $# -lt 7 ]; then
+	myname=`basename $0`
+	echo "usage: $myname epoch ra_h ra_m ra_s dec_d dec_m dec_s object"
+	echo "       $myname clear"
+	exit 1
+fi
+echo $epoch $ra_h:$ra_m:$ra_s $dec_d:$dec_m:$dec_s > $point_base_file
+echo 0 0 > $point_offset_file
+$do_point_cmd point
+exit $?

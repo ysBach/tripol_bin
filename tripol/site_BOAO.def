@@ -1,0 +1,6 @@
+observat = 'BOAO' / Observatory Name
+latitude = '+36:09:53.4' / Latitude of the Site
+longitud = '128:58:36.1' / Longitude of the Site
+height = 1100 / [m] Altitude of the Site
+telesco = '1.8-m' / Telescope Name
+instrume = 'TRIPOL_r' / Instrument Name

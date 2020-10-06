@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Convenience function for TL 6 exptime TEST 100
+# 2019-11-08 Y.P.Bach
+
+. $TRIPOL_DEF_FILE
+
+# enable job control
+set -m
+
+myname=`basename $0`
+
+exptime=${1:-1}
+echo "TL 6 $exptime TEST 100"
+
+TL 6 $exptime TEST 100

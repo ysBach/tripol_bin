@@ -1,0 +1,16 @@
+#!/usr/bin/tclsh
+
+set now [clock milliseconds]
+set sec [expr $now / 1000]
+set ms  [expr $now % 1000]
+set strdate   [clock format $sec -gmt 1 -format {%Y-%m-%dT%H:%M:%S}]
+set strdateut [clock format $sec -gmt 1 -format {%Y-%m-%d}]
+set strtimeut [clock format $sec -gmt 1 -format {%H:%M:%S}]
+set strdatelt [clock format $sec -gmt 0 -format {%Y-%m-%d}]
+set strtimelt [clock format $sec -gmt 0 -format {%H:%M:%S}]
+puts "date = '$strdate' / YYYY-mm-ddThh:mm:ss UT"
+puts "date_utc = '$strdateut' / YYYY-mm-dd"
+puts "time_utc = '$strtimeut.$ms' / hh:mm:ss"
+puts "date_lt = '$strdatelt' / YYYY-mm-dd"
+puts "time_lt = '$strtimelt.$ms' / hh:mm:ss"
+exit 0

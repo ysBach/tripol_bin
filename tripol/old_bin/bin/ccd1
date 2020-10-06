@@ -1,0 +1,28 @@
+#!/bin/sh
+
+. $TRIPOL_DEF_FILE
+
+band=$1
+case $band in
+	$notused)
+		exit 0
+		;;
+	$band_1)
+		server_addr=$ccdserver_addr_1
+		server_port=$ccdserver_port_1
+		;;
+	$band_2)
+		server_addr=$ccdserver_addr_2
+		server_port=$ccdserver_port_2
+		;;
+	$band_3)
+		server_addr=$ccdserver_addr_3
+		server_port=$ccdserver_port_3
+		;;
+	*)
+		echo "usage: `basename $0` band [commands to ccd]" 1>&2
+		exit 1
+		;;
+esac
+shift
+commccd.tcl $server_addr $server_port $*

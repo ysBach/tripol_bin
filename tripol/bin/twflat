@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if [ "$1" = "" -o "$1" = "-h" ]; then
+	echo "`basename $0` [-p] num"
+	exit
+fi
+if [ "$1" = "-p" ]; then
+	command=PLo
+	shift
+else
+	command=Lo
+fi
+$command 6 5 twflat $1

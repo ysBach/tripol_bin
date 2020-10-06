@@ -1,0 +1,88 @@
+#!/bin/sh
+# Number of frames option added.
+# If exptime == 0, OBJECT = "bias".
+# 2018-04-26 Y.P.Bach
+
+# Add option to select filters.
+# 2020-10-05 Y.P.Bach
+
+num=10
+mode=7
+filters="all CCDs"
+filterid=""
+
+usage ()
+{
+	echo "usage: dark [-gri] [-n number] exptimes"
+	echo ""
+	echo "ex:    dark -n 9 0 10 30 180"
+	echo "            ^^default=10   "
+	echo ""
+	echo "ex:    dark -r -n 9 0 10 30 180"
+	echo "            ^^only r-band "
+	echo ""
+	echo "Automatically do ``set_temp 99`` at the end?"
+	echo "       dark -n 9 0 10 30 180 9999"
+	echo ""
+}
+
+if [ $# -eq 0 ]; then
+	usage
+	exit 1
+fi
+
+# OPTS=`getopt -o n::`
+# # eval set -- "$OPTS"
+# echo "$OPTS"
+
+while getopts "n:gri:" opt ; do
+	case $opt in
+		n ) num=$OPTARG ;;
+		g ) 
+		    mode=71
+			filterid="g" 
+			filters="g CCD"
+			;;
+		r ) 
+		    mode=72 
+			filterid="r"
+			filters="r CCD"
+			;;
+		i ) 
+		    mode=73 
+			filterid="i"
+		    filters="i CCD"
+			;;
+	esac
+done
+
+
+shift $(( OPTIND - 1 ))
+echo $mode
+
+
+while [ "$1" ]; do
+	case $1 in
+		0|0.0 ) echo "Bias (Dark 0 sec): $num frames in $filters" 
+			Lo $mode $1 bias $num 
+		;;
+		9999|9999.0) echo "set_temp 99"
+			set_temp 99 $filterid
+			print_temp -s $filterid
+			echo "wait 1 min..."
+			sleep 60
+			print_temp -s $filterid
+		;;
+		* ) echo "Dark $1 sec     : $num frames in $filters"
+			Lo $mode $1 dark $num 
+	esac
+	ret=$?
+	test $ret -ne 0 && exit $ret
+	shift
+done
+tput bel
+sleep 0.3
+tput bel
+sleep 0.3
+tput bel
+exit 0

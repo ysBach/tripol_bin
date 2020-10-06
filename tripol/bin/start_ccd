@@ -1,0 +1,70 @@
+#!/bin/sh
+
+# start ccdserver
+
+. $TRIPOL_DEF_FILE
+
+usage ()
+{
+	myname=`basename $0`
+	echo "usage: $myname         : start ccdservers ($band_1, $band_2, $band_3)"
+	echo "       $myname {$band_1|$band_2|$band_3} : start selected server"
+}
+
+case "$1" in
+	$band_1|$band_2|$band_3)
+		band=$1
+		;;
+	"")
+		band="all"
+		;;
+	*)
+		usage 1>&2
+		exit 1
+		;;
+esac
+
+start_server ()
+{
+	# arg1: band name
+	local bnam=$1
+	case $bnam in
+		$band_1)
+			serial_no=$ccd_serial_no_1
+			server_port=$ccdserver_port_1
+			;;
+		$band_2)
+			serial_no=$ccd_serial_no_2
+			server_port=$ccdserver_port_2
+			;;
+		$band_3)
+			serial_no=$ccd_serial_no_3
+			server_port=$ccdserver_port_3
+			;;
+	esac
+	bin_file=${bindat_base}.${bnam}
+	test "$serial_no" && sno_opt="-n $serial_no"
+	$ccdserver_cmd -p $server_port -f $bin_file $sno_opt &
+}
+
+if [ "$band" = "all" ]; then
+	echo -n "starting ccdserver:"
+	if [ $band_1 != $notused ]; then
+		echo -n " $band_1 "
+		start_server $band_1
+		sleep 5
+	fi
+	if [ $band_2 != $notused ]; then
+		echo -n " $band_2 "
+		start_server $band_2
+		sleep 5
+	fi
+	if [ $band_3 != $notused ]; then
+		echo -n " $band_3"
+		start_server $band_3
+	fi
+	echo
+else
+	start_server $band
+fi
+exit 0

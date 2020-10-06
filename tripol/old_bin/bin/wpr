@@ -1,0 +1,50 @@
+#!/bin/sh
+
+#  wpr
+#  waveplate rotator
+
+. $TRIPOL_DEF_FILE
+
+header=${header_base}.wpr
+commwpr=commwpr.tcl
+
+case "$1" in
+	0|z|Z|0.0|00.0|000)
+		cmd=0
+		angle=0.0
+		;;
+	1|a|A|22.5|225)
+		cmd=1
+		angle=22.5
+		;;
+	2|b|B|45|45.0|450)
+		cmd=2
+		angle=45.0
+		;;
+	3|c|C|67.5|675)
+		cmd=3
+		angle=67.5
+		;;
+	clear|-clear)
+		rm -f $header
+		exit 0
+		;;
+	stop|-stop)
+		killall $commwpr
+		cmd=c
+		angle="unknown"
+		;;
+	*)
+		echo "usage: `basename $0` position" 1>&2
+		exit 1
+		;;
+esac
+
+reply=`$commwpr $cmd`
+test -z "$reply" -o "$reply" != "o" && exit 1
+if [ $cmd != c ]; then
+	reply=`$commwpr p`
+	test -z "$reply" -o "$reply" != "$cmd" && exit 1
+fi
+echo "pol-agl1 = $angle / [deg] pol rot angle 1" > $header
+exit 0

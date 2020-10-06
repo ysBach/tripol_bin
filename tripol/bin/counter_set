@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ -z "$1" ]; then
+	echo "usage: `basename $0` num"
+	exit 1
+fi
+nextdatafile.sh -s $1

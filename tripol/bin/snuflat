@@ -1,0 +1,39 @@
+#!/bin/sh
+
+if [ "$1" = "" -o "$1" = "-h" ]; then
+	echo "`basename $0` [-p/-P] num"
+	echo "No option gets angle of 0.0"
+	echo "Option -p gets angles of 0.0 22.5 45.0 67.5"
+	echo "Option -P gets angles of 0.0 30.0 60.0"
+	exit
+fi
+
+if [ "$1" = "-p" ] ; then
+	angles="0.0 22.5 45.0 67.5"
+	num=$2
+	shift
+elif [ "$1" = "-P" ] ; then
+	angles="0.0 30.0 60.0"
+	num=$2
+	shift
+else
+	num=$1
+	angles="0.0"
+fi
+
+for angle in $angles; do
+	echo "RET-ANG1 = $angle"
+	echo "PLo r $angle 0.4 flat_r $num"
+	PLo r $angle 0.4 flat_r $num
+	echo "PLo g $angle 2.0 flat_g $num"
+	PLo g $angle 2.0 flat_g $num
+	echo "PLo i $angle 5.0 flat_i $num"
+	PLo i $angle 5.0 flat_i $num
+done
+
+tput bel
+sleep 0.3
+tput bel
+sleep 0.3
+tput bel
+

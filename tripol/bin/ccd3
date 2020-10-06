@@ -1,0 +1,7 @@
+#!/bin/sh
+
+. $TRIPOL_DEF_FILE
+
+$ccd1_cmd $band_1 $*
+$ccd1_cmd $band_2 $*
+$ccd1_cmd $band_3 $*
