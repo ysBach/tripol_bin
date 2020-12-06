@@ -49,6 +49,7 @@ with open(tmphdrpath, 'r') as tmphdr:
 
     for i, line in enumerate(lines):
         k_ori, vc_ori = line.split(' = ', maxsplit=1)
+        print(vc_ori)
         v_ori, c_ori = vc_ori.split(' / ', maxsplit=1)
         v_ori = v_ori.replace("'", '').replace('"', '')
         
