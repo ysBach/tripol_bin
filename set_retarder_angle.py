@@ -4,6 +4,7 @@ import argparse
 import time
 # from comm_retarder import check_now, go_to_angle, get_angle
 
+
 def check_now(conn, time_start, angle_to):
     ''' not used in the main part -- only for debugging
     '''
@@ -42,6 +43,7 @@ def get_angle():
     r = conn.getresponse()
     angle_now = float(r.read())
     return angle_now
+
 
 parser = argparse.ArgumentParser()
 
@@ -86,9 +88,9 @@ if __name__ == "__main__":
         # print(angle_now, angle_to)
 
         if (dangle < ACCURACY) or (dangle > (360 - ACCURACY)):
-	        print(dangle)
-        	time.sleep(0.3)
-        	sys.exit(angle)
+            print(dangle)
+            time.sleep(0.3)
+            sys.exit(angle)
 
         #time_now = time.time()
         #dtime = time_now - time_start
@@ -97,9 +99,9 @@ if __name__ == "__main__":
         # (1) reset angle to 0
         # (2) reset the starting time.
         if dtime > 15:
-			time.sleep(0.3)
-        	sys.exit(angle)
-		# if dtime > 15:
+            time.sleep(0.3)
+            sys.exit(angle)
+        # if dtime > 15:
         #	go_to_angle(-80)
         #	time.sleep(10)
         #	time_start = time.time()
