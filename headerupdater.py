@@ -39,7 +39,7 @@ KEYMAP2 = dict(zip(KEYORI, KEYNEW))
 
 # First, update the header keys accordingly:
 newlines = [f"counter = {counter} / Image counter",
-            "bunit = 'ADU' / "]
+            "bunit = 'adu' / "]
 # cards = {}
 with open(tmphdrpath, 'r') as tmphdr:
     lines = tmphdr.read()
@@ -77,8 +77,10 @@ with open(tmphdrpath, 'r') as tmphdr:
         if k_ori.upper() == "RET-ANG1":
             retang1 = v_ori
             retang2 = get_angle() - 180
+            dangle = retang2 - retang1
+            dangle = 360 - dangle if dangle > 180 else dangle
             newlines.append(f"RET-ANG2 = {retang2:.2f} / [deg] The current retarder angle value.")
-            print(f"         RET-ANG2 = {retang2:.2f} (ANG2 - ANG1 = {retang2 - retang1:.2f})")
+            print(f"         RET-ANG2 = {retang2:.2f} (|ANG2 - ANG1| = {dangle:.2f})")
 
 # Appending at the last stage will overwrite the original value when transformed into FITS header.      
 newlines.append(f"GAIN = {GAIN_EPADU[filt][LATEST]} / [e-/ADU] The electron gain factor ({LATEST}).")
