@@ -74,7 +74,7 @@ with open(tmphdrpath, 'r') as tmphdr:
         else:
             # cards[k_ori] = (v_ori, c_ori)
             newlines.append(line)
-
+        print(k_ori)
         if k_ori.upper() == "RET-AGL1":
             retang1 = v_ori
             retang2 = get_angle() - 180
