@@ -1,4 +1,6 @@
 import argparse
+from get_retarder_angle import get_angle
+
 
 parser = argparse.ArgumentParser()
 
@@ -13,7 +15,7 @@ try:
     counter = tmpfitspath.split('/')[-1].split('_')[1][:4]
 except IndexError:
     counter = -1 # When TL image
-#%%
+
 LATEST = "Apr2018"
 GAIN_EPADU = dict(g=dict(default=1.82,
                          Apr2018=1.82), 
@@ -35,7 +37,6 @@ KEYORI = list(KEYMAP.values())
 KEYNEW = list(KEYMAP.keys())
 KEYMAP2 = dict(zip(KEYORI, KEYNEW))
 
-#%%
 # First, update the header keys accordingly:
 newlines = [f"counter = {counter} / Image counter",
             "bunit = 'ADU' / "]
@@ -73,10 +74,11 @@ with open(tmphdrpath, 'r') as tmphdr:
             # cards[k_ori] = (v_ori, c_ori)
             newlines.append(line)
 
-# Appending at the last stage will overwrite the original value 
-# when transformed into FITS header.      
+# Appending at the last stage will overwrite the original value when transformed into FITS header.      
+retang2 = get_angle()
 newlines.append(f"GAIN = {GAIN_EPADU[filt][LATEST]} / [e-/ADU] The electron gain factor ({LATEST}).")
 newlines.append(f"RDNOISE = {RDNOISE_E[filt][LATEST]} / [e-] The (Gaussian) readout noise ({LATEST}).")
+newlines.append(f"RET-AGL2 = {retang2:.2f} / [deg] The current retarder angle value.")
 
 newlines.append(
     "HISTORY  Keywords modified and updated for convenience by headerupdater.py"
