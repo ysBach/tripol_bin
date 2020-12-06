@@ -92,8 +92,8 @@ if __name__ == "__main__":
             time.sleep(0.3)
             sys.exit(angle)
 
-        #time_now = time.time()
-        #dtime = time_now - time_start
+        time_now = time.time()
+        dtime = time_now - time_start
 
         # If not at the desired place for 8 sec,
         # (1) reset angle to 0
