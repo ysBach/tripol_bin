@@ -53,7 +53,7 @@ args = parser.parse_args()
 angle = args.angle
 
 
-ACCURACY = 0.2
+ACCURACY = 1.0
 
 if __name__ == "__main__":
     conn = HTTPConnection("localhost", port=8000)
