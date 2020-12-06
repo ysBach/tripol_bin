@@ -12,7 +12,7 @@ import sys
 __all__ = ["get_angle"]
 
 
-def get_angle():
+def get_angle(return_value=False):
     try:
         start = time.time()
         conn = HTTPConnection("localhost", port=8000)
@@ -22,12 +22,22 @@ def get_angle():
         r = conn.getresponse()
         angle = float(r.read())
         if time.time() - start > 20:
-            sys.stderr.write("TIMEOUT")
-            sys.exit()
+            if return_value:
+                return None
+            else:
+                sys.stderr.write("TIMEOUT")
+                sys.exit()
 
     except ConnectionRefusedError:
-        sys.exit()
-    sys.exit(angle)
+        if return_value:
+            return None
+        else:
+            sys.exit()
+    
+    if return_value:
+        return angle
+    else:
+        sys.exit(angle)
 
 
 if __name__ == '__main__':
