@@ -75,7 +75,7 @@ with open(tmphdrpath, 'r') as tmphdr:
             # cards[k_ori] = (v_ori, c_ori)
             newlines.append(line)
 
-        if k_ori == "RET-AGL1":
+        if k_ori.upper() == "RET-AGL1":
             retang1 = v_ori
             retang2 = get_angle() - 180
             newlines.append(f"RET-AGL2 = {retang2:.2f} / [deg] The current retarder angle value.")
