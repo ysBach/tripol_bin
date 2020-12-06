@@ -61,10 +61,10 @@ if __name__ == "__main__":
     angle_to = float(angle) + 180
     angle_now = get_angle()
     dangle = abs(angle_now - angle_to)
-    print(angle_now, angle_to)
+    # print(angle_now, angle_to)
 
     if (dangle < ACCURACY) or (dangle > (360 - ACCURACY)):
-        print(dangle)
+        # print(dangle)
         time.sleep(0.5)
         sys.exit(angle)
 
@@ -84,13 +84,11 @@ if __name__ == "__main__":
         angle_now = get_angle()
         dangle = abs(angle_now - angle_to)
         # print(angle_now, angle_to)
-        time.sleep(0.3)
-        sys.exit(angle)
 
-        # if (dangle < ACCURACY) or (dangle > (360 - ACCURACY)):
-        # print(dangle)
-        #	time.sleep(0.3)
-        #	sys.exit(angle)
+        if (dangle < ACCURACY) or (dangle > (360 - ACCURACY)):
+	        print(dangle)
+        	time.sleep(0.3)
+        	sys.exit(angle)
 
         #time_now = time.time()
         #dtime = time_now - time_start
@@ -98,7 +96,10 @@ if __name__ == "__main__":
         # If not at the desired place for 8 sec,
         # (1) reset angle to 0
         # (2) reset the starting time.
-        # if dtime > 15:
+        if dtime > 15:
+			time.sleep(0.3)
+        	sys.exit(angle)
+		# if dtime > 15:
         #	go_to_angle(-80)
         #	time.sleep(10)
         #	time_start = time.time()
