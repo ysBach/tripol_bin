@@ -43,7 +43,6 @@ def get_angle():
     angle_now = float(r.read())
     return angle_now
 
-
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--angle')
@@ -62,10 +61,10 @@ if __name__ == "__main__":
     angle_to = float(angle) + 180
     angle_now = get_angle()
     dangle = abs(angle_now - angle_to)
-    # print(angle_now, angle_to)
+    print(angle_now, angle_to)
 
     if (dangle < ACCURACY) or (dangle > (360 - ACCURACY)):
-        # print(dangle)
+        print(dangle)
         time.sleep(0.5)
         sys.exit(angle)
 
