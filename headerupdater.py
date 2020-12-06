@@ -1,5 +1,5 @@
 import argparse
-from get_retarder_angle import get_angle
+from comm_retarder import get_angle
 
 
 parser = argparse.ArgumentParser()
@@ -75,7 +75,7 @@ with open(tmphdrpath, 'r') as tmphdr:
             newlines.append(line)
 
 # Appending at the last stage will overwrite the original value when transformed into FITS header.      
-retang2 = get_angle(return_value=True) - 180
+retang2 = get_angle() - 180
 newlines.append(f"GAIN = {GAIN_EPADU[filt][LATEST]} / [e-/ADU] The electron gain factor ({LATEST}).")
 newlines.append(f"RDNOISE = {RDNOISE_E[filt][LATEST]} / [e-] The (Gaussian) readout noise ({LATEST}).")
 newlines.append(f"RET-AGL2 = {retang2:.2f} / [deg] The current retarder angle value.")
