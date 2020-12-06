@@ -75,13 +75,16 @@ with open(tmphdrpath, 'r') as tmphdr:
             # cards[k_ori] = (v_ori, c_ori)
             newlines.append(line)
         if k_ori.upper() == "RET-ANG1":
-            retang1 = v_ori
-            retang2 = get_angle() - 180
-            dangle = retang2 - retang1
-            dangle = 360 - dangle if dangle > 180 else dangle
-            newlines.append(f"RET-ANG2 = {retang2:.2f} / [deg] The current retarder angle value.")
-            print(f"         RET-ANG2 = {retang2:.2f} (|ANG2 - ANG1| = {dangle:.2f})")
-
+            try:
+                retang1 = float(v_ori)
+                retang2 = get_angle() - 180
+                dangle = retang2 - retang1
+                dangle = 360 - dangle if dangle > 180 else dangle
+                newlines.append(f"RET-ANG2 = {retang2:.2f} / [deg] The current retarder angle value.")
+                print(f"         RET-ANG2 = {retang2:.2f} (|ANG2 - ANG1| = {dangle:.2f})")
+            except (TypeError, ValueError):
+                pass
+            
 # Appending at the last stage will overwrite the original value when transformed into FITS header.      
 newlines.append(f"GAIN = {GAIN_EPADU[filt][LATEST]} / [e-/ADU] The electron gain factor ({LATEST}).")
 newlines.append(f"RDNOISE = {RDNOISE_E[filt][LATEST]} / [e-] The (Gaussian) readout noise ({LATEST}).")
