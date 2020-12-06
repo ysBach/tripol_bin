@@ -78,7 +78,7 @@ with open(tmphdrpath, 'r') as tmphdr:
             retang1 = v_ori
             retang2 = get_angle() - 180
             newlines.append(f"RET-ANG2 = {retang2:.2f} / [deg] The current retarder angle value.")
-            print(f" RET-ANG2 = {retang2:.2f} (ANG2 - ANG1 = {retang2 - retang1:.2f}")
+            print(f"         RET-ANG2 = {retang2:.2f} (ANG2 - ANG1 = {retang2 - retang1:.2f})")
 
 # Appending at the last stage will overwrite the original value when transformed into FITS header.      
 newlines.append(f"GAIN = {GAIN_EPADU[filt][LATEST]} / [e-/ADU] The electron gain factor ({LATEST}).")
