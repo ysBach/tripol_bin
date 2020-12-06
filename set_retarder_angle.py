@@ -88,7 +88,7 @@ if __name__ == "__main__":
         # print(angle_now, angle_to)
 
         if (dangle < ACCURACY) or (dangle > (360 - ACCURACY)):
-            print(dangle)
+            # print(dangle)
             time.sleep(0.3)
             sys.exit(angle)
 
