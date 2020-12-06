@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# Takes a set of polarimetric observation (4-set scheme)
+# 2019-11-08 Y.P.Bach
+# 2020-12-03 Sunho Jin 
+
+. $TRIPOL_DEF_FILE
+
+# enable job control
+set -m
+
+myname=`basename $0`
+
+usage ()
+{
+	echo "usage: $myname mode exptime [object_name [num]]"
+}
+
+mode=$1
+exptime=$2
+objectname=${3:-"TEST"}
+num=${4:-1}
+
+if [ -z "$exptime" ]; then
+	usage
+	exit 1
+fi
+
+# Check if the input $objectname is the same as that from point2
+if [ $objectname != TEST ] && [ -e $objectname_dir ]; then
+	pointobject=$(head -1 $objectname_dir)
+	if [ $objectname != $pointobject ]; then
+		echo "point2 ($pointobject) != your object_name ($objectname)"
+		echo "  Update or clear"
+		echo "    - UPDATE: point2 object_list_file correct_name"
+		echo "    - CLEAR : point2 clear"
+		exit 1
+	fi
+fi
+
+for (( iter=1; iter<=$num; iter++ ))
+do
+	echo "----- $iter/$num -----"
+	PLo $mode 0 $exptime $objectname 1
+	PLo $mode 22.5 $exptime $objectname 1
+	PLo $mode 45 $exptime $objectname 1
+	PLo $mode 67.5 $exptime $objectname 1
+	PTL $mode 90 0 
+	PTL $mode -180 0
+	PTL $mode -90 0
+done 
+
+tput bel
+sleep 0.3
+tput bel
+sleep 0.3
+tput bel
+echo ""
+echo "!!! Please check the dome position !!!"
+

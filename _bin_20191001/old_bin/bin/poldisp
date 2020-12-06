@@ -1,0 +1,28 @@
+#!/bin/sh
+
+. $TRIPOL_DEF_FILE
+
+case $1 in
+	q|u)
+		;;
+	*)
+		echo "usage: `basename $0` {q|u}"
+		exit 1
+		;;
+esac
+filedir=`$filename_cmd -d`
+
+disp () {
+	band=$1
+	frame=$2
+	param=$3
+	fits=${filedir}/${band}p_${param}.fits
+	if [ -f $fits ]; then
+		xpaset -p ds9 frame $frame
+		xpaset ds9 fits $fits < $fits
+	fi
+}
+
+disp $band_1 $ds9_frame_1 $1
+disp $band_2 $ds9_frame_2 $1
+disp $band_3 $ds9_frame_3 $1

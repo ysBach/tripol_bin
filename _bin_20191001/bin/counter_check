@@ -1,0 +1,4 @@
+#!/bin/sh
+
+nextdatafile.sh -d
+nextdatafile.sh -n

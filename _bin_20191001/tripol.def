@@ -1,0 +1,95 @@
+
+# tripol.def
+
+# Let the name of the object saved to ``objname_dir``.
+# and it will be checked whether the name == Lo/PLo's object_name.
+# It will be removed if ``point2 clear``.
+# tripol.def  : added ``objname_dir``
+# do_point.sh : `` if clear; then rm -f $objname_dir ``
+# point       : ``echo $object > $objname_dir``
+# (P)TL/(P)Lo : added object_name and point2_name checker
+# 2019-11-14 Y.P.Bach
+
+
+
+LANG=C
+
+# files and directories
+
+tripol_dir=/usr/local/tripol
+tmp_dir=/dev/shm
+objectname_dir=$tmp_dir/objectname.dat
+TMPDIR=$tmp_dir
+xstop_file=$tmp_dir/.stop_tripol
+
+tmpimg_dir=$tmp_dir
+bindat_base=$tmpimg_dir/bindat
+
+header_dir=$tmp_dir
+header_base=$header_dir/header
+
+sitedef_file=$tripol_dir/site.def
+
+point_base_file=$tmp_dir/point.base
+point_offset_file=$tmp_dir/point.offset
+
+
+# programs
+
+filename_cmd=nextdatafile.sh
+echodate_cmd=echodate
+readout_cmd=readout.sh
+makefits_cmd=makefitsfile.sh
+getbin_cmd=getbin_local.sh
+header_cmd=applytemplate
+
+ccd1_cmd=ccd1
+ccdserver_cmd=ccdserver
+
+pol_cmd=wpr
+
+telinfo_cmd=
+do_point_cmd=do_point.sh
+do_point_tel_cmd=echo
+tel_control_cmd=echo
+tel_status_cmd=echo
+tel_wait_cmd=echo
+
+
+# misc definitions
+
+notused=notused
+
+band_1=g
+band_2=r
+band_3=i
+
+img_rot_1="-r 90"
+img_rot_2="-r 270"
+img_rot_3="-mr 270"
+
+ds9_frame_1=1
+ds9_frame_2=2
+ds9_frame_3=3
+
+ccdserver_addr_1=localhost
+ccdserver_addr_2=localhost
+ccdserver_addr_3=localhost
+
+ccdserver_port_1=9011
+ccdserver_port_2=9012
+ccdserver_port_3=9013
+
+ccdserver_data_port_1=
+ccdserver_data_port_2=
+ccdserver_data_port_3=
+
+#TRIPOL
+ccd_serial_no_1=91106879
+ccd_serial_no_2=91106880
+ccd_serial_no_3=91106883
+
+#ccd_serial_no_1=83F011241
+#ccd_serial_no_2=T12070041
+#ccd_serial_no_3=83F011240
+

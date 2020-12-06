@@ -1,0 +1,43 @@
+#!/bin/bash
+. $TRIPOL_DEF_FILE
+
+echo "Initial setting to RET-ANG1 = 0"
+PTL 6 0 0
+
+echo "Downloading time test..."
+echo ""
+echo "   $(date '+%Y-%m-%d %H:%M:%S.%3N') (UT $(date -u '+%Y-%m-%d %H:%M:%S.%3N'))"
+i=0
+while [ $i -lt 3 ]
+do
+    TL 6 0 1
+    echo "   $(date '+%Y-%m-%d %H:%M:%S.%3N') (UT $(date -u '+%Y-%m-%d %H:%M:%S.%3N'))"
+    fitsheader /data/$(date '+%y%m%d')/rawdata/g.fits | grep EXPSTART
+    i=$[$i+1]
+done
+
+echo ""
+echo "1-sec exposure time test..."
+echo ""
+echo "   $(date '+%Y-%m-%d %H:%M:%S.%3N') (UT $(date -u '+%Y-%m-%d %H:%M:%S.%3N'))"
+i=0
+while [ $i -lt 3 ]
+do
+    TL 6 0 1
+    echo "   $(date '+%Y-%m-%d %H:%M:%S.%3N') (UT $(date -u '+%Y-%m-%d %H:%M:%S.%3N'))"
+    i=$[$i+1]
+done
+
+echo ""
+echo "Rotator test..."
+echo ""
+echo "   $(date '+%Y-%m-%d %H:%M:%S.%3N') (UT $(date -u '+%Y-%m-%d %H:%M:%S.%3N'))"
+i=0
+while [ $i -lt 3 ]
+do
+    PTL 6 45 1
+    echo "   $(date '+%Y-%m-%d %H:%M:%S.%3N') (UT $(date -u '+%Y-%m-%d %H:%M:%S.%3N'))"
+    PTL 6 0 1
+    echo "   $(date '+%Y-%m-%d %H:%M:%S.%3N') (UT $(date -u '+%Y-%m-%d %H:%M:%S.%3N'))"
+    i=$[$i+1]
+done

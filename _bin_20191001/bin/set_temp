@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# Add band selection option
+# 2020-09-24 Y.P.Bach
+
+. $TRIPOL_DEF_FILE
+
+temp=$1
+
+case "$2" in
+	$band_1)
+		test $band_1 = $notused && continue
+		$ccd1_cmd $band_1 settemp $temp &
+		;;
+	$band_2)
+		test $band_2 = $notused && continue
+		$ccd1_cmd $band_2 settemp $temp &
+		;;
+	$band_3)
+		test $band_3 = $notused && continue
+		$ccd1_cmd $band_3 settemp $temp &
+		;;
+	*)
+	for band in $band_1 $band_2 $band_3; do
+		test $band = $notused && continue
+		$ccd1_cmd $band settemp $temp &
+	done
+	;;
+esac
+
+exit 0

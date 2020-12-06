@@ -1,0 +1,18 @@
+#!/bin/sh
+
+. $TRIPOL_DEF_FILE
+
+header=${header_base}.focus
+
+case "$1" in
+	""|-h)
+		echo "usage: `basename $0` focus_val"
+		;;
+	clear|-clear)
+		rm -f $header
+		;;
+	*)
+		echo "focus = $1 / focus" > $header
+		;;
+esac
+exit 0

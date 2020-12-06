@@ -1,0 +1,125 @@
+#!/bin/bash
+
+#  Lo
+#  take data
+
+#  TL
+#  test exposure
+
+. $TRIPOL_DEF_FILE
+
+# enable job control
+set -m
+
+myname=`basename $0`
+
+usage ()
+{
+	echo "usage: $myname mode exptime [object_name [num]]"
+}
+
+mode=$1
+exptime=$2
+objectname=${3:-"TEST"}
+num=${4:-1}
+
+# check option
+if [ -z "$mode" -o -z "$exptime" ]; then
+	usage
+	exit 1
+fi
+
+case $mode in
+	7)
+		dark="dark"
+		;;
+	*)
+		;;
+esac
+
+if [ $myname = TL ]; then
+	filedir=`$filename_cmd -d`
+	if [ -z "$filedir" ]; then
+		echo "$myname error: cannot get data file directory"
+		exit 1
+	fi
+fi
+
+# function
+# make fitsfile and display it
+mkfits_disp ()
+{
+	#arg1: band
+	#arg2: fitsfile name
+	#arg3: frame No. on ds9
+	local band=$1
+	local fits=$2
+	local frame=$3
+	test $band = $notused && return
+	$makefits_cmd $band $fits
+	if [ $? -eq 0 ]; then
+		if [ $frame != $notused ]; then
+			xpaset -p ds9 frame $frame
+			xpaset ds9 fits $fits < $fits
+		fi
+	else
+		echo "error making $fits"
+	fi
+}
+
+# make fits header template
+echo_header ()
+{
+	echo "object = '$objectname' / Object Name"
+	$echodate_cmd
+	#$pol_cmd header
+	#$telinfo_cmd
+}
+
+header0=${header_base}.tllo0
+
+rm -f $xstop_file
+
+while [ $num -gt 0 ]; do
+	# make data file name
+	if [ $myname = Lo ]; then
+		filebase=`$filename_cmd`
+		if [ -z "$filebase" ]; then
+			echo "$myname error: cannot make datafile"
+			exit 1
+		fi
+		filedir=`dirname $filebase`
+		filenam=`basename $filebase`
+		fits1=${filedir}/${band_1}${filenam}.fits
+		fits2=${filedir}/${band_2}${filenam}.fits
+		fits3=${filedir}/${band_3}${filenam}.fits
+	else
+		fits1=${filedir}/${band_1}.fits
+		fits2=${filedir}/${band_2}.fits
+		fits3=${filedir}/${band_3}.fits
+	fi
+
+	# make fits header template
+	echo_header > $header0
+
+	# take image and readout data
+	$readout_cmd $band_3 $exptime $dark &
+	$readout_cmd $band_2 $exptime $dark &
+	$readout_cmd $band_1 $exptime $dark
+
+	# make fits file and display it
+	test $? -eq 0 || break
+	mkfits_disp $band_1 $fits1 $ds9_frame_1
+	wait %2
+	test $? -eq 0 || break
+	mkfits_disp $band_2 $fits2 $ds9_frame_2
+	wait %1
+	test $? -eq 0 || break
+	mkfits_disp $band_3 $fits3 $ds9_frame_3
+
+	rm -f $header0
+	test -f $xstop_file && break
+	let num--
+done
+rm -f $header0
+exit $num

@@ -1,0 +1,39 @@
+#!/bin/sh
+
+start_temp=$1
+stop_temp=$2
+interval=$3
+
+if [ -z "$start_temp" -o -z "$stop_temp" ]; then
+	echo "usage: `basename $0` start_temp stop_temp [sleep_sec]"
+	exit 1
+fi
+test "$interval" || interval=120
+test $interval -ge 30
+if [ $? -ne 0 ]; then
+	echo "invalid interval: $interval"
+	exit 1
+fi
+echo "interval: ${interval}sec"
+echo -n "setpoint"
+setpoint=$start_temp
+echo -n " $setpoint"
+set_temp $setpoint
+if [ $start_temp -eq $stop_temp ]; then
+	echo
+	exit
+fi
+if [ $start_temp -gt $stop_temp ]; then
+	evaluat="-gt"
+	add_sub="-"
+else
+	evaluat="-lt"
+	add_sub="+"
+fi
+while [ $setpoint $evaluat $stop_temp ]; do
+	sleep $interval
+	setpoint=`expr $setpoint $add_sub 1`
+	echo -n " $setpoint"
+	set_temp $setpoint
+done
+echo

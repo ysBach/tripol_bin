@@ -1,0 +1,6 @@
+observat = 'SNU45-dong' / Observatory Name
+latitude = '+37:27:15.20' / Latitude of the Site
+longitud = '126:57:09.80' / Longitude of the Site
+height = 150 / [m] Altitude of the Site
+telesco = '24-inch' / Telescope Name
+instrume = 'TRIPOL' / Instrument Name

@@ -1,0 +1,26 @@
+#!/bin/sh
+
+point=point
+
+if [ "$1" = "clear" -o "$1" = "-clear" ]; then
+	$point clear
+	exit $?
+fi
+
+if [ -z "$1" -o -z "$2" ]; then
+	myname=`basename $0`
+	echo "usage: $myname object_list_file object_name"
+	echo "       $myname clear"
+	exit 1
+fi
+
+line=`cut -d '#' -f 1 $1 | grep -w ^$2`
+if [ -z "$line" ]; then
+	echo "$2 not found in $1"
+	exit 1
+fi
+line=`echo $line`
+object=`echo $line | cut -d ' ' -f 1`
+points=`echo $line | cut -d ' ' -f 2-8`
+$point $points $object
+exit $?

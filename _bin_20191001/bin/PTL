@@ -1,0 +1,224 @@
+#!/bin/bash
+
+#  PLo
+#  take data
+
+#  PTL
+#  test exposure
+
+# Added retarder angle
+# 2018-04-26 Y.P.Bach
+
+# Added band option
+# 2018-05-05 Y.P.Bach
+
+# Add tput bel 
+# Add timestamp 
+# 2019-11-08 Y.P.Bach
+
+# Let the name of the object saved to ``objname_dir``.
+# and it will be checked whether the name == Lo/PLo's object_name.
+# It will be removed if ``point2 clear``.
+# tripol.def  : added ``objname_dir``
+# do_point.sh : `` if clear; then rm -f $objname_dir ``
+# point       : ``echo $object > $objname_dir``
+# (P)TL/(P)Lo : added object_name and point2_name checker
+# 2019-11-14 Y.P.Bach
+
+# Add band selection option
+# 2020-09-24 Y.P.Bach
+
+# Add "end" information by echo
+# 2020-10-05 Y.P.Bach
+
+. $TRIPOL_DEF_FILE
+
+# enable job control
+set -m
+
+myname=`basename $0`
+
+usage ()
+{
+	echo "usage: $myname mode angle exptime [object_name [num]]"
+}
+
+mode=$1
+angle=$2
+exptime=$3
+objectname=${4:-"TEST"}
+num=${5:-1}
+
+# check option
+if [ -z "$mode" -o -z "$exptime" ]; then
+	usage
+	exit 1
+fi
+
+case $mode in
+	7)
+		dark="dark"
+		;;
+	*)
+		;;
+esac
+
+
+if [ $myname = PTL ]; then
+	filedir=`$filename_cmd -d`
+	if [ -z "$filedir" ]; then
+		echo "$myname error: cannot get data file directory"
+		exit 1
+	fi
+fi
+
+# Check if the input $objectname is the same as that from point2
+if [ $objectname != TEST ] && [ -e $objectname_dir ]; then
+	pointobject=$(head -1 $objectname_dir)
+	if [ $objectname != $pointobject ]; then
+		echo "point2 ($pointobject) != your object_name ($objectname)"
+		echo "  Update or clear"
+		echo "    - UPDATE: point2 object_list_file correct_name"
+		echo "    - CLEAR : point2 clear"
+		exit 1
+	fi
+fi
+
+# function
+# make fitsfile and display it
+mkfits_disp ()
+{
+	#arg1: band
+	#arg2: fitsfile name
+	#arg3: frame No. on ds9
+	local band=$1
+	local fits=$2
+	local frame=$3
+	test $band = $notused && return
+	$makefits_cmd $band $fits
+	if [ $? -eq 0 ]; then
+		if [ $frame != $notused ]; then
+			xpaset -p ds9 frame $frame
+			xpaset ds9 fits $fits < $fits
+		fi
+	else
+		echo "error making $fits"
+	fi
+}
+
+t_rot=`date +%s%3N`
+
+# Check for the retarder angle
+
+echo "Setting to RET-ANG1 = $angle ... "
+retangle=$(python $tripol_dir/set_retarder_angle.py --angle $angle 2>&1)
+
+t_rotend=`date +%s%3N`
+dt_rot=`echo "scale=2; ($t_rotend-$t_rot)/1000" | bc`
+
+echo "Success! [dt = $dt_rot s]"
+
+if [ -z "$retangle" ]; then
+	echo "Polarizer rotator is turned off. Do this:"
+	echo "python /home/observer/TRIPOL_polarizer/daemon.py"
+	exit 1
+fi
+
+t_start=`date +%s%3N`
+if [ $myname = PLo ]; then
+	chk_cntr=`nextdatafile.sh -n`
+	chk_cntr=`printf %04d $chk_cntr`
+	echo " $chk_cntr: $(date '+%Y-%m-%d %H:%M:%S.%1N') (UT $(date -u '+%Y-%m-%d %H:%M:%S.%1N'))"
+else
+	echo " TEST: $(date '+%Y-%m-%d %H:%M:%S.%1N') (UT $(date -u '+%Y-%m-%d %H:%M:%S.%1N'))"	
+fi
+
+
+# make fits header template
+echo_header ()
+{
+	echo "ret-ang1 = $retangle / [deg] The first retarder angle"
+	echo "object = '$objectname' / Object Name"
+	$echodate_cmd
+	#$pol_cmd header
+	#$telinfo_cmd
+}
+
+header0=${header_base}.tllo0
+
+rm -f $xstop_file
+
+while [ $num -gt 0 ]; do
+	# make data file name
+	if [ $myname = PLo ]; then
+		filebase=`$filename_cmd`
+		if [ -z "$filebase" ]; then
+			echo "$myname error: cannot make datafile"
+			exit 1
+		fi
+		filedir=`dirname $filebase`
+		filenam=`basename $filebase`
+		fits1=${filedir}/${band_1}${filenam}.fits
+		fits2=${filedir}/${band_2}${filenam}.fits
+		fits3=${filedir}/${band_3}${filenam}.fits
+	else
+		fits1=${filedir}/${band_1}.fits
+		fits2=${filedir}/${band_2}.fits
+		fits3=${filedir}/${band_3}.fits
+	fi
+
+	# make fits header template
+	echo_header > $header0
+
+	# make fits file and display it
+	case $mode in
+		$band_1)
+			$readout_cmd $band_1 $exptime $dark
+			test $? -eq 0 || break
+			mkfits_disp $band_1 $fits1 1
+			;;
+		$band_2)
+			$readout_cmd $band_2 $exptime $dark
+			test $? -eq 0 || break
+			mkfits_disp $band_2 $fits2 1
+			;;
+		$band_3)
+			$readout_cmd $band_3 $exptime $dark
+			test $? -eq 0 || break
+			mkfits_disp $band_3 $fits3 1
+			;;
+		*)
+			# take image and readout data
+			$readout_cmd $band_3 $exptime $dark &
+			$readout_cmd $band_2 $exptime $dark &
+			$readout_cmd $band_1 $exptime $dark
+
+			test $? -eq 0 || break
+			mkfits_disp $band_1 $fits1 $ds9_frame_1
+			wait %2
+			test $? -eq 0 || break
+			mkfits_disp $band_2 $fits2 $ds9_frame_2
+			wait %1
+			test $? -eq 0 || break
+			mkfits_disp $band_3 $fits3 $ds9_frame_3
+			;;
+	esac
+
+	rm -f $header0
+	test -f $xstop_file && break
+	let num--
+done
+rm -f $header0
+tput bel
+
+t_end=`date +%s%3N`
+dt_exp=`echo "scale=2; ($t_end-$t_start)/1000" | bc`
+
+if [ $myname = PLo ]; then
+	echo "  end: $(date '+%Y-%m-%d %H:%M:%S.%1N') (UT $(date -u '+%Y-%m-%d %H:%M:%S.%1N')) [dt = $dt_exp s]"
+else
+	echo "  end: $(date '+%Y-%m-%d %H:%M:%S.%1N') (UT $(date -u '+%Y-%m-%d %H:%M:%S.%1N')) [dt = $dt_exp s]"	
+fi
+echo ""
+
+exit $num

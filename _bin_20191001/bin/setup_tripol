@@ -1,0 +1,34 @@
+#!/bin/sh
+# Add band selection option
+# 2020-09-24 Y.P.Bach
+
+usage ()
+{
+	echo "usage: $myname [band]"
+}
+
+start_ds9
+echo ""
+echo "This terminal will be used for TRIPOL rotator."
+echo "Ctrl + Shift + T to open a new tab."
+echo ""
+echo "** If 'already in use' error, do 'killall -9 ccdserver'"
+echo ""
+start_ccd $1
+set_temp -10 $1
+echo ""
+echo "    Temp set to -10 deg C."
+echo "    print_temp -s [band]"
+print_temp -s $1
+echo ""
+echo ""
+echo "    The power should be ~ 0% during observation, "
+echo "    otherwise dark level fluctuates."
+echo "    If it does, do 'set_temp -5 [band]' or 'set_temp 0 [band]'."
+echo ""
+echo "NOW STARTING TRIPOL ROTATOR."
+echo "Connect to '/dev/ttyACM0"
+echo ""
+google-chrome http://127.0.0.1:8000 https://drive.google.com/drive/my-drive &
+python ~/TRIPOL_polarizer/daemon.py
+

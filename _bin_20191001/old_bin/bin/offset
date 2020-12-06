@@ -1,0 +1,44 @@
+#!/bin/sh
+
+. $TRIPOL_DEF_FILE
+
+myname=`basename $0`
+
+if [ "$1" = "clear" -o "$1" = "-clear" ]; then
+	rm -f $point_offset_file
+	$do_point_cmd clear
+	exit $?
+fi
+
+if [ "$1" = "-set" ]; then
+	flag="no_point"
+	shift
+fi
+
+ra_off=$1
+dec_off=$2
+
+if [ -z "$ra_off" -o -z "$dec_off" ]; then
+	echo "usage: $myname [-set] ra_off dec_off" 1>&2
+	exit 1
+fi
+
+check=`echo $ra_off | tr -d "\-[:digit:]\."`
+if [ "$check" ]; then
+	echo "$myname: invalid ra_off" 1>&2
+	exit 1
+fi
+check=`echo $dec_off | tr -d "\-[:digit:]\."`
+if [ "$check" ]; then
+	echo "$myname: invalid dec_off" 1>&2
+	exit 1
+fi
+
+if [ $myname = offsetx ]; then
+	$do_point_tel_cmd offset 0 0 0 $ra_off $dec_off
+	#FIXME: you may want to path Dec value to correct ra_off
+else
+	echo $ra_off $dec_off > $point_offset_file
+	$do_point_cmd offset $flag
+fi
+exit $?

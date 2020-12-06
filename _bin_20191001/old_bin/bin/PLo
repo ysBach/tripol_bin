@@ -1,0 +1,186 @@
+#!/bin/bash
+
+#  PLo
+#  take data -- Pol mode
+
+#  PTL
+#  test exposure
+
+. $TRIPOL_DEF_FILE
+
+# enable job control
+set -m
+
+myname=`basename $0`
+
+usage ()
+{
+	echo "usage: $myname mode exptime [object_name [num]]"
+}
+
+mode=$1
+exptime=$2
+objectname=${3:-"TEST"}
+num=${4:-1}
+
+# check option
+
+if [ -z "$mode" -o -z "$exptime" ]; then
+	usage
+	exit 1
+fi
+
+angles="000 450 225 675"
+
+case $mode in
+	7)
+		dark="dark"
+		;;
+	4)
+		angles="000 225 450 675"
+		;;
+	*)
+		;;
+esac
+
+if [ $myname = PTL ]; then
+	filedir=`$filename_cmd -d`
+	if [ -z "$filedir" ]; then
+		echo "$myname error: cannot get datafile directory"
+		exit 1
+	fi
+fi
+
+# function
+# make fitsfile and display it
+mkfits_disp ()
+{
+	#arg1: band
+	#arg2: fitsfile name
+	#arg3: frame No. on ds9
+	local band=$1
+	local fits=$2
+	local frame=$3
+	test $band = $notused && return
+	$makefits_cmd $band $fits
+	if [ $? -eq 0 ]; then
+		if [ $frame != $notused ]; then
+			xpaset -p ds9 frame $frame
+			xpaset ds9 fits $fits < $fits
+		fi
+	else
+		echo "error making $fits"
+	fi
+}
+
+# print fits file name for PTL
+ptl_fitsname ()
+{
+	local band=$1
+	local angle=$2
+	echo "${filedir}/${band}p${angle}.fits"
+}
+
+# subtract 2 images
+subimage ()
+{
+	local band=$1
+	local frame=$2
+	local angle1=$3
+	local angle2=$4
+	local param=$5
+	test $band = $notused && return
+	local fits1=`ptl_fitsname $band $angle1`
+	local fits2=`ptl_fitsname $band $angle2`
+	local fitss=${filedir}/${band}p_${param}.fits
+	if [ -f $fits1 -a -f $fits2 ]; then
+		rm -f $fitss
+		imarithf $fits1 $fits2 sub $fitss
+		if [ $? -eq 0 -a $frame != $notused ]; then
+			xpaset -p ds9 frame $frame
+			xpaset ds9 fits $fitss < $fitss
+		fi
+	fi
+}
+
+# make fits header template
+echo_header ()
+{
+	echo "object = '$objectname' / Object Name"
+	$echodate_cmd
+	#$telinfo_cmd
+}
+
+header0=${header_base}.plo0
+
+rm -f $xstop_file
+
+while [ $num -gt 0 ]; do
+	echo -n "set$num "
+	for angle in $angles; do
+		echo -n "$angle "
+
+		# make data file name
+		if [ $myname = PLo ]; then
+			filebase=`$filename_cmd`
+			if [ -z "$filebase" ]; then
+				echo "$myname error: cannot make datafile"
+				exit $num
+			fi
+			filedir=`dirname $filebase`
+			filenam=`basename $filebase`
+			fits1=${filedir}/${band_1}${filenam}.fits
+			fits2=${filedir}/${band_2}${filenam}.fits
+			fits3=${filedir}/${band_3}${filenam}.fits
+		else
+			fits1=`ptl_fitsname $band_1 $angle`
+			fits2=`ptl_fitsname $band_2 $angle`
+			fits3=`ptl_fitsname $band_3 $angle`
+		fi
+
+		# set waveplate angle
+		$pol_cmd $angle
+		test $? -eq 0 || exit $num
+
+		# make fits header template
+		echo_header > $header0
+
+		# take image and readout data
+		$readout_cmd $band_3 $exptime $dark &
+		$readout_cmd $band_2 $exptime $dark &
+		$readout_cmd $band_1 $exptime $dark
+
+		# make fits file and display it
+		if [ $? -ne 0 ]; then touch $xstop_file; break; fi
+		mkfits_disp $band_1 $fits1 $ds9_frame_1
+		wait %2
+		if [ $? -ne 0 ]; then touch $xstop_file; break; fi
+		mkfits_disp $band_2 $fits2 $ds9_frame_2
+		wait %1
+		if [ $? -ne 0 ]; then touch $xstop_file; break; fi
+		mkfits_disp $band_3 $fits3 $ds9_frame_3
+
+		rm -f $header0
+		test -f $xstop_file && break
+	done	
+	test -f $xstop_file && break
+
+	# show simple U, Q image
+	if [ $myname = PTL ]; then
+		sleep 0.5
+		subimage $band_1 $ds9_frame_1 225 675 u
+		subimage $band_2 $ds9_frame_2 225 675 u
+		subimage $band_3 $ds9_frame_3 225 675 u
+		sleep 2
+		subimage $band_1 $ds9_frame_1 000 450 q
+		subimage $band_2 $ds9_frame_2 000 450 q
+		subimage $band_3 $ds9_frame_3 000 450 q
+	fi
+
+	test -f $xstop_file && break
+	let num--
+done
+rm -f $header0
+echo
+exit $num
+

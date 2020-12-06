@@ -1,0 +1,6 @@
+#!/bin/sh
+
+. $TRIPOL_DEF_FILE
+
+touch $xstop_file
+test "$1" = "-c" && killall -HUP $ccdserver_cmd

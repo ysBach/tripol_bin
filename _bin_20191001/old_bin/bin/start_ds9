@@ -1,0 +1,6 @@
+#!/bin/sh
+if [ -z "`pgrep -x ds9`" ]; then
+	#ds9 -zscale -colorbar no -tile yes -tile mode column $* &
+	ds9 -zscale -tile yes -tile mode column $* &
+fi
+exit 0
