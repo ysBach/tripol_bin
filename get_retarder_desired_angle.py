@@ -12,14 +12,13 @@ import sys
 __all__ = ["get_angle"]
 
 
-def get_angle(value='desired', return_value=False):
+def get_angle(return_value=False):
     try:
         start = time.time()
         conn = HTTPConnection("localhost", port=8000)
         conn.close()
         conn = HTTPConnection("localhost", port=8000)
-        if value == 'desired':
-            conn.request("GET", "/get/angle/to")
+        conn.request("GET", "/get/angle/to")
         r = conn.getresponse()
         angle = float(r.read())
         if time.time() - start > 20:
